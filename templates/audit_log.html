@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-wrap" style="min-height:100vh; padding-bottom:40px;">
+  <div class="top-stripe"></div>
+
+  <div class="inst-header" style="position:sticky; top:0; z-index:10;">
+    <div class="emblem">GCE</div>
+    <div style="flex:1; text-align:center;">
+      <div class="inst-title">Audit Log</div>
+      <div class="inst-sub">Security event trail &nbsp;·&nbsp; Last 500 events</div>
+    </div>
+    <a href="/admin-dashboard" class="btn btn-ghost btn-sm" style="color:white; border-color:rgba(255,255,255,0.3);">← Dashboard</a>
+  </div>
+  <div class="gold-rule" style="margin:0;"></div>
+
+  <div style="max-width:1200px; margin:28px auto; padding:0 20px;">
+
+    <div class="card" style="overflow:hidden;">
+      <div style="padding:14px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px;">
+        <div class="search-wrap" style="flex:1; max-width:360px;">
+          <input type="text" id="auditSearch" class="field"
+                 placeholder="Filter by action, actor, IP…" style="padding-left:36px;">
+        </div>
+        <span style="font-size:12px; color:var(--slate); margin-left:auto;">{{ logs|length }} event(s)</span>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:48px;">#</th>
+              <th style="min-width:170px;">Timestamp</th>
+              <th>Action</th>
+              <th>Actor</th>
+              <th>IP Address</th>
+              <th>Target ID</th>
+              <th>Detail</th>
+            </tr>
+          </thead>
+          <tbody id="auditTable">
+            {% for log in logs %}
+            <tr>
+              <td style="color:var(--slate); font-size:12px;">{{ log.id }}</td>
+              <td style="font-family:monospace; font-size:12px; white-space:nowrap;">
+                {{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') if log.timestamp else '—' }}
+              </td>
+              <td>
+                <span class="badge
+                  {% if 'fail' in log.action or 'suspicious' in log.action %}badge-rejected
+                  {% elif 'ok' in log.action or 'approve' in log.action %}badge-approved
+                  {% elif 'delete' in log.action %}badge-rejected
+                  {% else %}badge-pending{% endif %}">
+                  {{ log.action }}
+                </span>
+              </td>
+              <td style="font-size:13px;">{{ log.actor or '—' }}</td>
+              <td style="font-family:monospace; font-size:12px;">{{ log.ip_address or '—' }}</td>
+              <td style="font-size:12px; color:var(--slate);">{{ log.target_id or '—' }}</td>
+              <td style="font-size:12px; color:var(--slate); max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                {{ log.detail or '' }}
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="7" style="text-align:center; padding:40px; color:var(--slate); font-style:italic;">
+                No audit events recorded yet.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="page-footer" style="max-width:1200px; margin:0 auto; padding:14px 20px;">
+    © 2025 Government College of Engineering, Kolhapur &nbsp;·&nbsp; Audit Log
+  </div>
+</div>
+
+{% endblock %}

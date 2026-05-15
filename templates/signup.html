@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-wrap min-h-screen flex flex-col items-center justify-center p-6">
+  <div class="top-stripe w-full fixed top-0 left-0"></div>
+
+  <div style="width:100%; max-width:480px;">
+
+    <!-- Header -->
+    <div class="card" style="overflow:hidden; margin-bottom:2px;">
+      <div class="inst-header" style="padding:18px 28px;">
+        <div class="emblem" style="width:42px;height:42px;font-size:16px;">GCE</div>
+        <div style="flex:1; text-align:center;">
+          <div class="inst-title" style="font-size:18px;">New Student Registration</div>
+          <div class="inst-sub">Government College of Engineering, Kolhapur</div>
+        </div>
+      </div>
+      <div class="gold-rule" style="margin:0;"></div>
+    </div>
+
+    <!-- Form card -->
+    <div class="card" style="padding:32px;">
+      <p class="section-head" style="margin-bottom:6px;">Account Details</p>
+      <div class="gold-rule"></div>
+
+      {% if error %}
+        <div class="alert alert-error">{{ error }}</div>
+      {% endif %}
+
+      <form method="POST" action="/signup" id="signupForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div style="margin-bottom:16px;">
+          <label class="field-label">Username</label>
+          <input type="text" name="username" id="username" class="field" required placeholder="Choose a username">
+          <div class="field-error" id="usernameError" style="color:#b91c1c; font-size:12px; margin-top:4px; display:none;"></div>
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <label class="field-label">Password</label>
+          <input type="password" name="password" id="password" class="field" required placeholder="Minimum 6 characters">
+          <div class="field-error" id="passwordError" style="color:#b91c1c; font-size:12px; margin-top:4px; display:none;"></div>
+        </div>
+
+        <div style="margin-bottom:28px;">
+          <label class="field-label">Confirm Password</label>
+          <input type="password" name="confirm_password" id="confirm_password" class="field" required placeholder="Re-enter password">
+          <div class="field-error" id="confirmError" style="color:#b91c1c; font-size:12px; margin-top:4px; display:none;"></div>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+          <a href="/" class="btn btn-ghost" style="flex:1;">← Back to Login</a>
+          <button type="submit" class="btn btn-primary" style="flex:1;">Register</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="page-footer card" style="padding:12px; margin-top:2px;">
+      © 2025 Government College of Engineering, Kolhapur
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,374 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-wrap" style="min-height:100vh; padding: 0 0 40px 0;">
+  <div class="top-stripe"></div>
+
+  <!-- Institution Header -->
+  <div class="inst-header" style="position:sticky; top:0; z-index:10;">
+    <div class="emblem">GCE</div>
+    <div style="flex:1; text-align:center;">
+      <div class="inst-title">Government College of Engineering, Kolhapur</div>
+      <div class="inst-sub">Application Form — Admission to Second / Third Year Degree Course &nbsp;·&nbsp; 2025–26</div>
+    </div>
+    <a href="/logout" class="btn btn-danger btn-sm" style="letter-spacing:0.05em;">Logout</a>
+  </div>
+  <div class="gold-rule" style="margin:0 0 0 0;"></div>
+
+  <div style="max-width:960px; margin:28px auto; padding:0 20px;">
+
+    {% if application %}
+      <div class="alert alert-info" style="display:flex; align-items:center; gap:8px;">
+        <span style="font-weight:700;">Application ID: {{ application.id }}</span>
+        &nbsp;·&nbsp; You are editing your saved application.
+      </div>
+    {% endif %}
+
+    {% if application and application.status %}
+      <div class="alert
+        {% if application.status|lower == 'approved' %}alert-success
+        {% elif application.status|lower == 'rejected' %}alert-error
+        {% else %}alert-warning{% endif %}"
+        style="display:flex; align-items:flex-start; gap:8px;">
+        <div>
+          <strong>Status:</strong> {{ application.status }}
+          {% if application.rejection_reason %}
+            &nbsp;·&nbsp; <strong>Reason:</strong> {{ application.rejection_reason }}
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+
+    {% if form_errors %}
+      <div class="alert alert-error">
+        <strong>Please fix the following errors:</strong>
+        <ul style="margin:6px 0 0 16px; list-style:disc;">
+          {% for err in form_errors %}<li>{{ err }}</li>{% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+    <form method="POST" action="/submit-application" class="space-y-0" autocomplete="on">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <!-- ── PERSONAL DETAILS ── -->
+      <div class="card" style="padding:28px; margin-bottom:3px;">
+        <p class="section-head">Personal Details</p>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+
+          <div>
+            <label class="field-label">Full Name <span style="color:#b91c1c;">*</span></label>
+            <input type="text" name="full_name" class="field"
+                   value="{{ application.full_name if application }}" required>
+          </div>
+
+          <div>
+            <label class="field-label">Email Address <span style="color:#b91c1c;">*</span></label>
+            <input type="email" name="email" class="field"
+                   value="{{ application.email if application }}" placeholder="student@example.com" required>
+          </div>
+
+          <div>
+            <label class="field-label">Branch <span style="color:#b91c1c;">*</span></label>
+            <select name="branch" class="field" required>
+              <option value="">— Select Branch —</option>
+              {% for b in ['Computer Engineering','Artificial Intelligence And Data Science Engineering','Mechanical Engineering','Electrical Engineering','Electronics Engineering'] %}
+                <option value="{{ b }}" {% if application and application.branch == b %}selected{% endif %}>{{ b }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div>
+            <label class="field-label">Category <span style="color:#b91c1c;">*</span></label>
+            <select name="category" class="field" required>
+              {% for c in ['Open','SC','ST','OBC','EWS'] %}
+                <option value="{{ c }}" {% if application and application.category == c %}selected{% endif %}>{{ c }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div>
+            <label class="field-label">Caste <span style="color:#b91c1c;">*</span></label>
+            <input type="text" name="caste" class="field"
+                   value="{{ application.caste if application }}">
+          </div>
+
+          <div>
+            <label class="field-label">Gender <span style="color:#b91c1c;">*</span></label>
+            <div style="display:flex; gap:24px; margin-top:8px;">
+              {% for g in ['Male','Female','Other'] %}
+                <label style="display:flex; align-items:center; gap:7px; font-size:14px; cursor:pointer;">
+                  <input type="radio" name="gender" value="{{ g }}"
+                         {% if application and application.gender == g %}checked{% endif %}
+                         style="accent-color: var(--navy); width:15px; height:15px;">
+                  {{ g }}
+                </label>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Bank Details -->
+          <div style="grid-column: span 2;">
+            <div style="border-top:1px solid var(--rule); margin:8px 0 16px 0;"></div>
+            <p style="font-size:12px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--slate); margin-bottom:12px;">Bank Details</p>
+            <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:6px; padding:10px 14px; margin-bottom:16px; font-size:12.5px; color:#92400e;">
+              ⚠️ <strong>Note:</strong> Bank account should belong to the individual student only.
+            </div>
+          </div>
+
+          <div>
+            <label class="field-label">Bank Account Number <span style="color:#b91c1c;">*</span></label>
+            <input type="text" name="bank_account_number" class="field" autocomplete="off"
+                   value="{{ application.bank_account_number if application }}"
+                   placeholder="Enter account number" pattern="[0-9]{9,18}"
+                   title="Enter a valid 9-18 digit bank account number">
+          </div>
+
+          <div>
+            <label class="field-label">IFSC Code <span style="color:#b91c1c;">*</span></label>
+            <input type="text" name="ifsc_code" class="field" autocomplete="off"
+                   value="{{ application.ifsc_code if application }}"
+                   placeholder="e.g. SBIN0001234"
+                   pattern="[A-Z]{4}0[A-Z0-9]{6}"
+                   style="text-transform:uppercase;"
+                   title="Enter a valid IFSC code (e.g. SBIN0001234)">
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── CONTACT DETAILS ── -->
+      <div class="card" style="padding:28px; margin-bottom:3px;">
+        <p class="section-head">Contact Details</p>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+
+          <div>
+            <label class="field-label">Student Mobile <span style="color:#b91c1c;">*</span></label>
+            <input type="tel" name="student_mobile" pattern="[0-9]{10}" class="field" autocomplete="off"
+                   value="{{ application.student_mobile if application }}" placeholder="10-digit number">
+          </div>
+
+          <div>
+            <label class="field-label">Parent Mobile <span style="color:#b91c1c;">*</span></label>
+            <input type="tel" name="parent_mobile" pattern="[0-9]{10}" class="field" autocomplete="off"
+                   value="{{ application.parent_mobile if application }}" placeholder="10-digit number">
+          </div>
+
+          <div>
+            <label class="field-label">Local Address</label>
+            <textarea name="local_address" rows="3" class="field" style="resize:vertical;">{{ application.local_address if application }}</textarea>
+          </div>
+
+          <div>
+            <label class="field-label">Permanent Address</label>
+            <textarea name="permanent_address" rows="3" class="field" style="resize:vertical;">{{ application.permanent_address if application }}</textarea>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── ACADEMIC DETAILS ── -->
+      <div class="card" style="padding:28px; margin-bottom:3px;">
+        <p class="section-head">Academic Details</p>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+
+          <div>
+            <label class="field-label">CET Application Number</label>
+            <input type="text" name="cet_application_number" class="field"
+                   value="{{ application.cet_application_number if application }}" placeholder="Enter CET application number">
+          </div>
+
+          <div>
+            <label class="field-label">PRN Number <span style="color:#b91c1c;">*</span></label>
+            <input type="text" name="prn_number" class="field"
+                   value="{{ application.prn_number if application }}" required>
+          </div>
+
+          <!-- CHANGED: Admission Taking Year → Admission Date (date picker) -->
+          <div>
+            <label class="field-label">Admission Date <span style="color:#b91c1c;">*</span></label>
+            <input type="date" name="admission_taking_year" class="field"
+                   value="{{ application.admission_taking_year if application }}"
+                   title="Select your admission date">
+          </div>
+
+          <div>
+            <label class="field-label">Year of Transition <span style="color:#b91c1c;">*</span></label>
+            <select name="year_transition" id="yearTransition" class="field" required>
+              <option value="">— Select —</option>
+              <option value="1st to 2nd" {% if application and application.year_transition == '1st to 2nd' %}selected{% endif %}>1st to 2nd</option>
+              <option value="2nd to 3rd" {% if application and application.year_transition == '2nd to 3rd' %}selected{% endif %}>2nd to 3rd</option>
+              <option value="3rd to 4th" {% if application and application.year_transition == '3rd to 4th' %}selected{% endif %}>3rd to 4th</option>
+            </select>
+          </div>
+
+          <div style="grid-column: span 2;">
+            <label class="field-label">Admission Receipt No.</label>
+            <input type="text" name="admission_receipt" class="field"
+                   value="{{ application.admission_receipt if application }}">
+          </div>
+
+          <!-- Dynamic credit fields -->
+          <div id="credit1Wrap">
+            <label class="field-label">1st Year Credits</label>
+            <input type="number" name="first_year_credits" id="firstYearCredits" class="field" min="0"
+                   value="{{ application.first_year_credits if application }}">
+          </div>
+
+          <div id="credit2Wrap" style="display:none;">
+            <label class="field-label">2nd Year Credits</label>
+            <input type="number" name="second_year_credits" id="secondYearCredits" class="field" min="0"
+                   value="{{ application.second_year_credits if application }}">
+          </div>
+
+          <div id="credit3Wrap" style="display:none;">
+            <label class="field-label">3rd Year Credits</label>
+            <input type="number" name="third_year_credits" id="thirdYearCredits" class="field" min="0"
+                   value="{{ application.third_year_credits if application }}">
+          </div>
+
+          <div style="grid-column: span 2;" id="totalCreditsWrap">
+            <label class="field-label">Total Credits <span style="font-weight:400; text-transform:none; letter-spacing:0;">(auto-calculated)</span></label>
+            <input type="number" name="total_credits" id="totalCredits" class="field" readonly
+                   value="{{ application.total_credits if application }}">
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── SCHOLARSHIP DETAILS ── -->
+      <div class="card" style="padding:28px; margin-bottom:3px;">
+        <p class="section-head">Scholarship Details</p>
+
+        <div style="display:flex; align-items:center; gap:32px; margin-bottom:20px;">
+          <label class="field-label" style="margin:0;">Applied for Scholarship?</label>
+          <div style="display:flex; gap:24px;">
+            <label style="display:flex; align-items:center; gap:7px; font-size:14px; cursor:pointer;">
+              <input type="radio" name="applied_for_scholarship" value="Yes" id="scholarshipYes"
+                {% if application and application.applied_for_scholarship == 'Yes' %}checked{% endif %}
+                style="accent-color:var(--navy); width:15px; height:15px;">
+              Yes
+            </label>
+            <label style="display:flex; align-items:center; gap:7px; font-size:14px; cursor:pointer;">
+              <input type="radio" name="applied_for_scholarship" value="No" id="scholarshipNo"
+                {% if not application or application.applied_for_scholarship != 'Yes' %}checked{% endif %}
+                style="accent-color:var(--navy); width:15px; height:15px;">
+              No
+            </label>
+          </div>
+        </div>
+
+        <div id="scholarshipDetailsWrapper" style="{% if not application or application.applied_for_scholarship != 'Yes' %}display:none;{% endif %}">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+
+            <div>
+              <label class="field-label">Income Certificate Number</label>
+              <input type="text" name="income_certificate_number" class="field" autocomplete="off"
+                     value="{{ application.income_certificate_number if application }}"
+                     placeholder="Enter income certificate number">
+            </div>
+
+            <div>
+              <label class="field-label">Actual Income (₹)</label>
+              <input type="text" name="actual_income" class="field"
+                     value="{{ application.actual_income if application }}"
+                     placeholder="e.g. 150000">
+            </div>
+
+            <!-- CHANGED: "Scholarship Registration Number" → "Scholarship Scheme Name" (dropdown) -->
+            <div style="grid-column: span 2;">
+              <label class="field-label">Scholarship Scheme Name</label>
+              <select name="scholarship_registration_no" id="schemeDropdown" class="field">
+                <option value="">— Select Scholarship Scheme —</option>
+                {% set schemes = [
+                  'Post Matric Scholarship Scheme (Government of India)',
+                  'Tuition Fee & Exam Fee for Tribal Students (Freeship)',
+                  'Rajarshi Chhatrapati Shahu Maharaj Shikshan Shulkh Shishyavrutti Yojna (EBC)',
+                  'Scholarship for students of minority communities pursuing Higher and Professional courses (DTE)',
+                  'Payment of Maintenance Allowance to VJNT and SBC Students Studying in Professional Courses and Living in Hostel Attached to Professional Colleges',
+                  'Payment of Tuition Fees and Examination Fees to OBC Girls Pursuing Professional Courses',
+                  'Post Matric Scholarship to OBC Students',
+                  'Post Matric Scholarship to SBC Students',
+                  'Post Matric Scholarship to the Girls Belonging to Other Backward Classes taking admission in Professional Courses',
+                  'Post Matric Scholarship to VJNT Students',
+                  'Tuition Fees and Examination Fees to OBC Students',
+                  'Tuition Fees and Examination Fees to SBC Students',
+                  'Tuition Fees and Examination Fees to VJNT Students',
+                  'Government of India Post-Matric Scholarship',
+                  'Maintenance Allowance for student Studying in professional courses',
+                  'Post-Matric Scholarship for persons with disability',
+                  'Post-Matric Tuition Fee and Examination Fee (Freeship)',
+                  'Other'
+                ] %}
+                {% for scheme in schemes %}
+                  <option value="{{ scheme }}"
+                    {% if application and application.scholarship_registration_no == scheme %}selected{% endif %}>
+                    {{ scheme }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- DYNAMIC: Show only when "Other" is selected -->
+            <div style="grid-column: span 2;" id="customSchemeWrap"
+                 style="{% if not application or application.scholarship_registration_no != 'Other' %}display:none;{% endif %}">
+              <label class="field-label">Enter Scheme Name <span style="color:#b91c1c;">*</span></label>
+              <input type="text" name="custom_scheme_name" id="customSchemeName" class="field"
+                     value="{{ application.custom_scheme_name if application and application.custom_scheme_name }}"
+                     placeholder="Enter your scholarship scheme name">
+            </div>
+
+            <!-- Dynamic year-wise scholarship reg numbers -->
+            <div id="schReg1Wrap">
+              <label class="field-label">1st Year Registration Number</label>
+              <input type="text" name="scholarship_reg_year1" class="field"
+                     value="{{ application.scholarship_reg_year1 if application }}"
+                     placeholder="1st year scholarship reg. no.">
+            </div>
+
+            <div id="schReg2Wrap" style="display:none;">
+              <label class="field-label">2nd Year Registration Number</label>
+              <input type="text" name="scholarship_reg_year2" class="field"
+                     value="{{ application.scholarship_reg_year2 if application }}"
+                     placeholder="2nd year scholarship reg. no.">
+            </div>
+
+            <div id="schReg3Wrap" style="display:none;">
+              <label class="field-label">3rd Year Registration Number</label>
+              <input type="text" name="scholarship_reg_year3" class="field"
+                     value="{{ application.scholarship_reg_year3 if application }}"
+                     placeholder="3rd year scholarship reg. no.">
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ACTION BUTTONS ── -->
+      <div class="card" style="padding:20px 28px; display:flex; align-items:center; gap:12px;">
+        <button type="reset" class="btn btn-ghost">Reset Form</button>
+        <button type="submit" class="btn btn-success">Save Application</button>
+
+        {% if application and application.status == "Approved" %}
+          <button type="button" id="downloadBtn" class="btn btn-primary" style="margin-left:auto;">
+            ↓ Download PDF
+          </button>
+        {% else %}
+          <button type="button" disabled class="btn btn-ghost" style="margin-left:auto; cursor:not-allowed; opacity:0.5;">
+            ↓ Download PDF &nbsp;(Available after approval)
+          </button>
+        {% endif %}
+      </div>
+
+    </form>
+  </div>
+
+  <div class="page-footer" style="max-width:960px; margin:0 auto; padding:14px 20px;">
+    © 2025 Government College of Engineering, Kolhapur &nbsp;·&nbsp; Admission Portal
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-wrap min-h-screen flex flex-col items-center justify-center p-6" style="background: var(--light);">
+  <div class="top-stripe w-full fixed top-0 left-0"></div>
+
+  <div style="width:100%; max-width:520px;">
+    <div class="card" style="overflow:hidden; margin-bottom:2px;">
+      <div class="inst-header" style="padding:18px 28px;">
+        <div class="emblem">GCE</div>
+        <div style="flex:1; text-align:center;">
+          <div class="inst-title">Government College of Engineering</div>
+          <div class="inst-sub">Kolhapur &nbsp;·&nbsp; Admission Portal</div>
+        </div>
+      </div>
+      <div class="gold-rule" style="margin:0;"></div>
+    </div>
+
+    <div class="card" style="padding:40px 32px; text-align:center;">
+      <div style="font-family:'EB Garamond',serif; font-size:64px; font-weight:700;
+                  color:var(--navy); line-height:1; margin-bottom:12px;">
+        {{ code }}
+      </div>
+      <p style="font-size:15px; color:var(--slate); margin-bottom:28px; line-height:1.6;">
+        {{ message }}
+      </p>
+      <a href="/" class="btn btn-primary">← Return to Home</a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

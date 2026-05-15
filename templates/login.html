@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-wrap min-h-screen flex flex-col items-center justify-center p-6" style="background: var(--light);">
+
+  <!-- Top stripe -->
+  <div class="top-stripe w-full fixed top-0 left-0"></div>
+
+  <div style="width:100%; max-width:900px;">
+
+    <!-- Institution Header -->
+    <div class="card" style="overflow:hidden; margin-bottom: 2px;">
+      <div class="inst-header">
+        <div class="emblem">GCE</div>
+        <div style="flex:1; text-align:center;">
+          <div class="inst-title">Government College of Engineering, Kolhapur</div>
+          <div class="inst-sub">Admission Management System &nbsp;·&nbsp; Academic Year 2025–26</div>
+        </div>
+        <div class="emblem" style="visibility:hidden;">GCE</div>
+      </div>
+      <div class="gold-rule" style="margin:0;"></div>
+    </div>
+
+    <!-- Login panels -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:2px; margin-bottom:2px;">
+
+      {% if error %}
+      <div style="grid-column: 1/-1; padding: 0 0 2px 0;">
+        <div class="alert alert-error">{{ error }}</div>
+      </div>
+      {% endif %}
+
+      <!-- Student Login -->
+      <div class="card" style="padding:32px;">
+        <p class="section-head" style="margin-bottom:6px;">Student Portal</p>
+        <div class="gold-rule"></div>
+
+        <form method="POST" action="/student-login">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div style="margin-bottom:16px;">
+            <label class="field-label">Username</label>
+            <input type="text" name="username" class="field" required placeholder="Enter your username">
+          </div>
+          <div style="margin-bottom:24px;">
+            <label class="field-label">Password</label>
+            <input type="password" name="password" class="field" required placeholder="Enter your password">
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%;">Login as Student</button>
+        </form>
+
+        <p style="text-align:center; margin-top:16px; font-size:13px; color: var(--slate);">
+          New applicant? &nbsp;<a href="/signup" style="color:var(--navy); font-weight:600; text-decoration:underline;">Create an account</a>
+        </p>
+      </div>
+
+      <!-- Admin Login -->
+      <div class="card" style="padding:32px; border-left:none;">
+        <p class="section-head" style="margin-bottom:6px;">Administrative Portal</p>
+        <div class="gold-rule"></div>
+
+        <form method="POST" action="/admin-login" autocomplete="off">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div style="margin-bottom:16px;">
+            <label class="field-label">Username</label>
+            <input type="text" name="username" class="field" required placeholder="admin">
+          </div>
+          <div style="margin-bottom:24px;">
+            <label class="field-label">Password</label>
+            <input type="password" name="password" class="field" required placeholder="••••••••">
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%; background:#1a3260;">Login as Admin</button>
+        </form>
+
+        <p style="text-align:center; margin-top:16px; font-size:12px; color:#94a3b8; letter-spacing:0.04em;">
+          RESTRICTED ACCESS &nbsp;·&nbsp; AUTHORISED PERSONNEL ONLY
+        </p>
+      </div>
+    </div>
+
+    <div class="page-footer card" style="padding:12px;">
+      © 2025 Government College of Engineering, Kolhapur &nbsp;·&nbsp; Admission Portal
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

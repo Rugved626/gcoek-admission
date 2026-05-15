@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-wrap min-h-screen flex flex-col items-center justify-center p-6" style="background: var(--light);">
+  <div class="top-stripe w-full fixed top-0 left-0"></div>
+
+  <div style="width:100%; max-width:420px;">
+    <div class="card" style="overflow:hidden; margin-bottom:2px;">
+      <div class="inst-header" style="padding:18px 28px;">
+        <div class="emblem">GCE</div>
+        <div style="flex:1; text-align:center;">
+          <div class="inst-title" style="font-size:18px;">Identity Confirmation</div>
+          <div class="inst-sub">Re-authentication required for this action</div>
+        </div>
+      </div>
+      <div class="gold-rule" style="margin:0;"></div>
+    </div>
+
+    <div class="card" style="padding:32px;">
+      <div class="alert alert-warning" style="font-size:13px;">
+        🔒 You are about to perform a critical action. Please confirm your admin password to continue.
+      </div>
+
+      {% if error %}
+        <div class="alert alert-error">{{ error }}</div>
+      {% endif %}
+
+      <form method="POST" action="/admin/reauth" autocomplete="off">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div style="margin-bottom:20px;">
+          <label class="field-label">Admin Password</label>
+          <input type="password" name="password" class="field"
+                 required autofocus autocomplete="current-password"
+                 placeholder="Enter your admin password">
+        </div>
+        <div style="display:flex; gap:10px;">
+          <a href="/admin-dashboard" class="btn btn-ghost" style="flex:1;">Cancel</a>
+          <button type="submit" class="btn btn-danger" style="flex:1;">Confirm</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

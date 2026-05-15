@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-wrap" style="min-height:100vh; padding-bottom:40px;">
+  <div class="top-stripe"></div>
+
+  <!-- Header -->
+  <div class="inst-header" style="position:sticky; top:0; z-index:10;">
+    <div class="emblem">GCE</div>
+    <div style="flex:1; text-align:center;">
+      <div class="inst-title">Government College of Engineering, Kolhapur</div>
+      <div class="inst-sub">Administrative Panel &nbsp;·&nbsp; Admission Applications 2025–26</div>
+    </div>
+    <a href="/admin/audit-log" class="btn btn-ghost btn-sm" style="color:white; border-color:rgba(255,255,255,0.3); margin-right:6px;">📋 Audit Log</a>
+    <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
+  </div>
+  <div class="gold-rule" style="margin:0;"></div>
+
+  <div style="max-width:1200px; margin:28px auto; padding:0 20px;">
+
+    <!-- Stats bar -->
+    <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:3px; margin-bottom:3px;">
+      {% set total    = applications|length %}
+      {% set approved = applications|selectattr('status','equalto','Approved')|list|length %}
+      {% set rejected = applications|selectattr('status','equalto','Rejected')|list|length %}
+      {% set pending  = total - approved - rejected %}
+
+      {% for label, val, color in [
+          ('Total Applications', total,    '#0f2044'),
+          ('Pending',            pending,  '#92400e'),
+          ('Approved',           approved, '#065f46'),
+          ('Rejected',           rejected, '#7f1d1d')
+        ] %}
+        <div class="card" style="padding:18px 22px; border-top: 3px solid {{ color }};">
+          <div style="font-size:28px; font-family:'EB Garamond',serif; font-weight:700; color:{{ color }};">{{ val }}</div>
+          <div style="font-size:11px; font-weight:600; letter-spacing:0.07em; text-transform:uppercase; color:var(--slate); margin-top:3px;">{{ label }}</div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Excel Export Card -->
+    <div class="card" style="padding:18px 24px; margin-bottom:3px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+      <div style="font-size:13px; font-weight:600; color:var(--navy); letter-spacing:0.02em;">
+        📊 Export Student Data
+      </div>
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-left:auto;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <label style="font-size:12px; font-weight:600; color:var(--slate); white-space:nowrap;">Branch:</label>
+          <select id="exportBranch" class="field" style="padding:6px 10px; font-size:12px; width:auto; min-width:180px;">
+            <option value="">All Branches</option>
+            {% for b in ['Computer Engineering','Artificial Intelligence And Data Science Engineering','Mechanical Engineering','Electrical Engineering','Electronics Engineering'] %}
+              <option value="{{ b }}">{{ b }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <label style="font-size:12px; font-weight:600; color:var(--slate);">Gender:</label>
+          <select id="exportGender" class="field" style="padding:6px 10px; font-size:12px; width:auto; min-width:120px;">
+            <option value="">All</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+        </div>
+        <a id="exportBtn" href="/admin/export-excel" class="btn btn-success btn-sm"
+           style="font-size:12px; padding:7px 16px; white-space:nowrap;">
+          ↓ Export Excel
+        </a>
+      </div>
+    </div>
+
+    <!-- Table card -->
+    <div class="card" style="overflow:hidden;">
+
+      <!-- Toolbar -->
+      <div style="padding:16px 20px; display:flex; align-items:center; gap:12px; border-bottom:1px solid var(--border);">
+        <div class="search-wrap" style="flex:1; max-width:400px;">
+          <input type="text" id="searchApplications" class="field"
+                 placeholder="Search by name, PRN or branch…" style="padding-left:36px;">
+        </div>
+        <span style="font-size:12px; color:var(--slate); margin-left:auto; letter-spacing:0.04em;">
+          {{ applications|length }} record(s)
+        </span>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:50px;">ID</th>
+              <th>Full Name</th>
+              <th>PRN No.</th>
+              <th>Year Transition</th>
+              <th>Email</th>
+              <th>Branch</th>
+              <th>Scholarship</th>
+              <th style="width:80px;">Status</th>
+              <th style="text-align:center; min-width:340px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="applicationsTable">
+            {% for app in applications %}
+              <tr>
+                <td style="color:var(--slate); font-size:12px;">{{ app.id }}</td>
+                <td style="font-weight:500;">{{ app.full_name or '—' }}</td>
+                <td style="font-family:monospace; font-size:13px;">{{ app.prn_number or "—" }}</td>
+                <td style="font-size:13px;">{{ app.year_transition or "—" }}</td>
+                <td style="font-size:12px;">{{ app.email or "—" }}</td>
+                <td style="font-size:13px;">{{ app.branch or '—' }}</td>
+                <td>
+                  {% if app.applied_for_scholarship == 'Yes' %}
+                    <span class="badge" style="background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe;">Yes</span>
+                  {% else %}
+                    <span style="color:#94a3b8; font-size:12px;">No</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <span class="badge
+                    {% if app.status == 'Approved' %}badge-approved
+                    {% elif app.status == 'Rejected' %}badge-rejected
+                    {% else %}badge-pending{% endif %}">
+                    {{ app.status or 'Pending' }}
+                  </span>
+                </td>
+                <td>
+                  <div style="display:flex; align-items:center; justify-content:center; gap:6px; flex-wrap:wrap;">
+
+                    <!-- Preview -->
+                    <a href="/admin/preview/{{ app.id }}" class="btn btn-primary btn-sm">Preview</a>
+
+                    <!-- Approve (POST + CSRF) -->
+                    <form method="POST" action="/approve/{{ app.id }}" style="display:inline;">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button type="submit" class="btn btn-success btn-sm"
+                              onclick="return confirm('Approve application #{{ app.id }}?')">Approve</button>
+                    </form>
+
+                    <!-- Reject inline -->
+                    <form method="POST" action="/reject/{{ app.id }}" style="display:inline-flex; gap:4px; align-items:center;">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <input type="text" name="reason" placeholder="Reason…"
+                             class="field" style="padding:5px 8px; font-size:11px; width:110px;" required>
+                      <button type="submit" class="btn btn-warning btn-sm">Reject</button>
+                    </form>
+
+                    <!-- Delete (POST + CSRF) -->
+                    <form method="POST" action="/delete/{{ app.id }}" style="display:inline;" class="delete-form" data-id="{{ app.id }}">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+
+                  </div>
+                </td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="9" style="text-align:center; padding:40px; color:var(--slate); font-style:italic;">
+                  No applications have been submitted yet.
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="page-footer" style="max-width:1200px; margin:0 auto; padding:14px 20px;">
+    © 2025 Government College of Engineering, Kolhapur &nbsp;·&nbsp; Administration
+  </div>
+</div>
+
+{% endblock %}
