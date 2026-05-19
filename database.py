@@ -9,7 +9,7 @@
 import os
 import time
 import logging
-import psycopg2
+import psycopg
 import psycopg2.extras
 from dotenv import load_dotenv
 
