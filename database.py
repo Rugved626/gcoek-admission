@@ -10,7 +10,7 @@ import os
 import time
 import logging
 import psycopg
-import psycopg2.extras
+from psycopg.rows import dict_row
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -47,11 +47,11 @@ def get_db(retries: int = 3, delay: float = 1.0):
     for attempt in range(1, retries + 1):
         try:
             return psycopg.connect(
-                url,
-                cursor_factory=psycopg2.extras.RealDictCursor,
-                connect_timeout=10,
-            )
-        except psycopg2.OperationalError as exc:
+    url,
+    row_factory=dict_row,
+    connect_timeout=10,
+)
+        except psycopg.OperationalError as exc:
             last_exc = exc
             logger.warning("DB connect attempt %d/%d failed: %s", attempt, retries, exc)
             if attempt < retries:
