@@ -46,7 +46,7 @@ def get_db(retries: int = 3, delay: float = 1.0):
 
     for attempt in range(1, retries + 1):
         try:
-            return psycopg2.connect(
+            return psycopg.connect(
                 url,
                 cursor_factory=psycopg2.extras.RealDictCursor,
                 connect_timeout=10,
